@@ -8,6 +8,7 @@ import { TIPO_EQUIPAMENTO_LABEL, type TipoEquipamento } from "@/lib/constantes";
 import { Cliente } from "@/models/Cliente";
 import { Equipamento } from "@/models/Equipamento";
 import Campo from "@/components/Campo";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function EquipamentoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
@@ -31,13 +32,20 @@ export default async function EquipamentoDetalhePage({ params }: { params: Promi
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
-      <div>
-        <Link href="/equipamentos" className="text-sm text-muted-foreground hover:underline">
-          Voltar para equipamentos
-        </Link>
-        <h1 className="mt-1 text-2xl font-semibold">
-          {equipamento.marca} {equipamento.modelo}
-        </h1>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <Link href="/equipamentos" className="text-sm text-muted-foreground hover:underline">
+            Voltar para equipamentos
+          </Link>
+          <h1 className="mt-1 text-2xl font-semibold">
+            {equipamento.marca} {equipamento.modelo}
+          </h1>
+        </div>
+        {session.user.role === "admin" && (
+          <Link href={`/ordens/nova?equipamento=${id}`} className={buttonVariants()}>
+            Abrir ordem de serviço
+          </Link>
+        )}
       </div>
 
       <Card>
@@ -68,7 +76,7 @@ export default async function EquipamentoDetalhePage({ params }: { params: Promi
       <Card>
         <CardHeader>
           <CardTitle>Histórico de reparos</CardTitle>
-          <CardDescription>Os reparos deste equipamento aparecem aqui quando as ordens de serviço entrarem (Etapas 3 e 4).</CardDescription>
+          <CardDescription>Os reparos deste equipamento aparecem aqui na Etapa 4, em ordem cronológica.</CardDescription>
         </CardHeader>
       </Card>
     </div>

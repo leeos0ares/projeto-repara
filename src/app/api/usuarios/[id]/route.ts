@@ -5,6 +5,7 @@ import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
 import { Usuario } from "@/models/Usuario";
 import { Cliente } from "@/models/Cliente";
+import { OrdemServico } from "@/models/OrdemServico";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -76,6 +77,14 @@ export async function DELETE(_req: Request, { params }: Ctx) {
   }
 
   await dbConnect();
+
+  if (await OrdemServico.exists({ tecnicoId: id })) {
+    return NextResponse.json(
+      { erro: "Esse técnico tem ordens de serviço. Desative o usuário em vez de excluir." },
+      { status: 409 }
+    );
+  }
+
   const usuario = await Usuario.findByIdAndDelete(id);
   if (!usuario) {
     return NextResponse.json({ erro: "Usuário não encontrado" }, { status: 404 });

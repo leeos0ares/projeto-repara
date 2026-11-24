@@ -11,10 +11,18 @@ type UiStore = {
   buscaEquipamento: string;
   tipoEquipamento: string;
   buscaUsuario: string;
+  buscaOrdem: string;
+  statusOrdem: string;
+  prioridadeOrdem: string;
+  tecnicoOrdem: string;
   setBuscaCliente: (valor: string) => void;
   setBuscaEquipamento: (valor: string) => void;
   setTipoEquipamento: (valor: string) => void;
   setBuscaUsuario: (valor: string) => void;
+  setBuscaOrdem: (valor: string) => void;
+  setStatusOrdem: (valor: string) => void;
+  setPrioridadeOrdem: (valor: string) => void;
+  setTecnicoOrdem: (valor: string) => void;
 
   // modais de formulário (item = null significa "criar novo")
   modalCliente: Modal<ClienteItem>;
@@ -33,10 +41,18 @@ export const useUiStore = create<UiStore>((set) => ({
   buscaEquipamento: "",
   tipoEquipamento: "",
   buscaUsuario: "",
+  buscaOrdem: "",
+  statusOrdem: "",
+  prioridadeOrdem: "",
+  tecnicoOrdem: "",
   setBuscaCliente: (valor) => set({ buscaCliente: valor }),
   setBuscaEquipamento: (valor) => set({ buscaEquipamento: valor }),
   setTipoEquipamento: (valor) => set({ tipoEquipamento: valor }),
   setBuscaUsuario: (valor) => set({ buscaUsuario: valor }),
+  setBuscaOrdem: (valor) => set({ buscaOrdem: valor }),
+  setStatusOrdem: (valor) => set({ statusOrdem: valor }),
+  setPrioridadeOrdem: (valor) => set({ prioridadeOrdem: valor }),
+  setTecnicoOrdem: (valor) => set({ tecnicoOrdem: valor }),
 
   modalCliente: { aberto: false, item: null },
   modalEquipamento: { aberto: false, item: null },

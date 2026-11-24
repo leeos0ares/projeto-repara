@@ -3,7 +3,7 @@
 Sistema web de gestão para uma assistência técnica de computadores, notebooks, videogames, controles e periféricos.
 Clientes, equipamentos, ordens de serviço, orçamentos e histórico de reparos em um lugar só.
 
-Projeto acadêmico (Next.js Fullstack). **Estado atual: Etapa 2 de 5** (inclui tudo da Etapa 1).
+Projeto acadêmico (Next.js Fullstack). **Estado atual: Etapa 3 de 5** (inclui tudo das Etapas 1 e 2).
 
 ## Tecnologias
 
@@ -20,13 +20,33 @@ Zustand, Tailwind CSS, ShadCN/UI e Vercel.
 - Menu lateral que muda conforme o perfil, `loading.tsx` e `error.tsx`
 
 **Etapa 2**
-- CRUD de usuários (só admin): cria administradores e técnicos, edita, ativa/desativa, redefine senha e exclui
-- CRUD de clientes (admin edita, técnico só consulta) com página de detalhes em `/clientes/[id]`
-- CRUD de equipamentos (admin edita; técnico consulta; cliente vê só os dele) com detalhes em `/equipamentos/[id]`
-- Campos de especificação (processador, RAM, placa de vídeo, armazenamento) só para computador e notebook
+- CRUD de usuários (só admin), clientes e equipamentos, com páginas de detalhe `/clientes/[id]` e `/equipamentos/[id]`
 - Toda rota `/api` confere login e perfil no servidor (`src/lib/permissoes.ts`)
-- React Query nas listas (cache e atualização depois de salvar/excluir)
-- Zustand para filtros e abertura dos modais (`src/store/useUiStore.ts`)
+- React Query nas listas e Zustand para filtros e modais
+
+**Etapa 3**
+- Ordens de serviço com número sequencial (`#0001`, `#0002`...), criadas pelo admin a partir de um equipamento
+- Lista com busca (nº, cliente, equipamento) e filtros de status, prioridade e técnico
+- Página `/ordens/[id]` com dados, diagnóstico e reparo, orçamento e linha do tempo (histórico de movimentações)
+- Status com regras (`src/lib/status.ts`): cada status só vai para os próximos permitidos, e só para quem tem permissão
+- Orçamento: técnico ou admin cria; o cliente aprova ou recusa; sem aprovação o reparo não começa
+- Prioridade (baixa, normal, alta, urgente) independente do status
+- Cada perfil só enxerga e altera o que lhe cabe (técnico: só ordens atribuídas; cliente: só as dele, sem notas internas)
+- Equipamento com ordens e técnico com ordens não podem ser excluídos
+
+### Como o status anda
+
+```
+Recebido -> Em diagnóstico -> Aguardando aprovação -> (cliente aprova) -> Em reparo
+                                                    -> (cliente recusa) -> Recusado -> Entregue ou Cancelado
+Em reparo <-> Aguardando peças
+Em reparo <-> Em testes -> Pronto para retirada -> Entregue
+Em reparo -> Aguardando aprovação (serviço adicional: novo orçamento)
+Cancelar: só o admin, até antes de "Pronto para retirada"
+```
+
+Regras extras: para iniciar o diagnóstico a ordem precisa ter técnico; para enviar ao cliente precisa ter orçamento;
+para marcar como pronto precisa ter o resultado dos testes preenchido.
 
 ## Como instalar (projeto novo)
 
@@ -43,15 +63,10 @@ npm install mongoose next-auth@4 bcryptjs @tanstack/react-query zustand
 Depois copie para dentro da pasta `repara/` as pastas `src/` e `scripts/` e o arquivo `.env.example` deste projeto.
 Confirme a substituição de `src/app/layout.tsx` e `src/app/page.tsx`.
 
-### Já está com a Etapa 1 funcionando?
+### Já está com a Etapa 2 funcionando?
 
-Não precisa recomeçar. Dentro do projeto rode:
-
-```bash
-npx shadcn@latest add table dialog textarea badge
-```
-
-e copie a pasta `src/` deste zip por cima (pode substituir tudo, a Etapa 1 está incluída).
+A Etapa 3 **não precisa de nenhum componente novo do ShadCN** (usa `select`, `details`, `input type="date"` nativos).
+É só copiar a pasta `src/` deste zip por cima do projeto.
 
 ### Cor azul do tema
 
@@ -92,14 +107,22 @@ npm run dev
 
 Abra http://localhost:3000 e entre com o admin criado.
 
-Roteiro de teste da Etapa 2:
-1. Em **Usuários**, crie um técnico.
-2. Em **Clientes**, cadastre um cliente (ex.: nome, e-mail, telefone).
-3. Em **Equipamentos**, cadastre um notebook para ele (aparecem os campos de especificação) e um videogame (não aparecem).
-4. Tente excluir o cliente: deve avisar que ainda tem equipamentos.
-5. Saia, crie uma conta em `/cadastro` com o mesmo e-mail do cliente do passo 2: ela fica ligada a ele e em
-   **Equipamentos** só aparecem os dele.
-6. Entre como técnico: vê clientes e equipamentos, mas sem botões de editar. Abrir `/usuarios` volta para o dashboard.
+### Roteiro de teste da Etapa 3
+
+Prepare: crie um técnico em **Usuários**, um cliente em **Clientes** e um notebook para ele em **Equipamentos**.
+Para testar o lado do cliente, crie uma conta em `/cadastro` com o mesmo e-mail do cliente.
+
+1. Admin: abra o equipamento e clique em **Abrir ordem de serviço**. Preencha o problema, prioridade "Alta" e escolha o técnico.
+2. Na ordem, tente **Iniciar diagnóstico** antes de ter técnico (use uma ordem sem técnico): deve avisar.
+3. Entre como técnico: a ordem aparece na lista dele (e só ela). Clique em **Iniciar diagnóstico**.
+4. Preencha o diagnóstico, salve, e crie o orçamento (serviços, peças, mão de obra). Clique em **Enviar orçamento ao cliente**.
+5. Entre como cliente: em **Ordens de serviço** abra a ordem. Deve ver o diagnóstico e o orçamento, mas não as observações
+   internas, o técnico nem a prioridade. Clique em **Aprovar orçamento**.
+6. Entre como técnico de novo: status "Em reparo". Registre procedimentos, peças e tente **Marcar como pronto** sem
+   resultado dos testes (deve avisar). Envie para testes, preencha o resultado e marque como pronto.
+7. Admin: **Registrar entrega**. A ordem fica encerrada e não aceita mais edição.
+8. Tente excluir o equipamento ou o técnico: deve bloquear porque existem ordens.
+9. Teste a recusa: em outra ordem, o cliente recusa o orçamento. Status vira "Recusado" e o admin pode registrar a devolução.
 
 ## Estrutura das pastas
 
@@ -108,8 +131,9 @@ src/
   app/            páginas e rotas (api/ tem as rotas do servidor)
     (painel)/     páginas privadas, com menu lateral
   components/     componentes (ui/ é do ShadCN)
-  lib/            banco, login, permissões, constantes, fetch das rotas
-  models/         modelos do MongoDB (Usuario, Cliente, Equipamento)
+  hooks/          useAtualizarOrdem
+  lib/            banco, login, permissões, regras de status, formatação, constantes
+  models/         Usuario, Cliente, Equipamento, OrdemServico
   providers/      SessionProvider + React Query
   store/          Zustand (filtros e modais)
   types/          tipagens
@@ -119,14 +143,17 @@ scripts/          criar-admin.mjs
 ## Limitações conhecidas
 
 - Ao criar a conta, o sistema liga o usuário ao cliente que tiver o mesmo e-mail. Não há confirmação de e-mail, então
-  alguém poderia se cadastrar com o e-mail de outro cliente e ver os equipamentos dele. Para o escopo da faculdade foi aceito.
+  alguém poderia se cadastrar com o e-mail de outro cliente e ver as ordens dele. Para o escopo da faculdade foi aceito.
+- Ordens não são apagadas: "excluir" uma ordem é cancelá-la, para o histórico não se perder.
+- Se o cliente recusar um orçamento de serviço adicional (no meio do reparo), a ordem vai para "Recusado" e o admin decide
+  entre devolver o equipamento ou cancelar.
+- Cliente sem conta no sistema não consegue aprovar sozinho: o admin registra a decisão em nome dele.
 - Fotos do equipamento ficam de fora (exigiria armazenamento de arquivos).
-- A busca das listas é feita no navegador, em cima dos dados já carregados (suficiente para uma assistência pequena).
+- A busca das listas é feita no navegador, em cima dos dados já carregados.
 
 ## Próximas etapas
 
-3. Ordens de serviço: status com regras, orçamento e aprovação (e bloquear exclusão de equipamento/técnico com OS)
-4. Dashboards por perfil e histórico por equipamento
+4. Dashboards por perfil e histórico de reparos por equipamento
 5. Ajustes finais, README completo e deploy na Vercel
 
 Link do deploy: _ainda não publicado_
