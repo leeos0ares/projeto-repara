@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 // Protege as PÁGINAS privadas. As rotas /api não passam por aqui:
-// cada rota da API confere a sessão por conta própria (a partir da Etapa 2).
+// cada rota da API confere a sessão por conta própria (exigirAcesso em src/lib/permissoes.ts).
 export default withAuth(
   function middleware(req) {
     const role = req.nextauth.token?.role;
@@ -16,6 +16,8 @@ export default withAuth(
     }
   },
   {
+    // sem isso, o NextAuth mandaria para a página de login padrão dele (/api/auth/signin)
+    pages: { signIn: "/login" },
     callbacks: {
       authorized: ({ token }) => !!token, // sem token = vai para /login
     },

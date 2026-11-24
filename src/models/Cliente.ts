@@ -8,6 +8,9 @@ const clienteSchema = new Schema(
     observacoes: { type: String, trim: true },
     // preenchido quando o cliente tem conta no sistema (login)
     usuarioId: { type: Schema.Types.ObjectId, ref: "Usuario", default: null },
+    // Código de uso único para o cliente do balcão criar a conta e se ligar a este cadastro.
+    // select: false -> não vem nas consultas, só quando pedimos com .select("+codigoVinculo")
+    codigoVinculo: { type: String, default: null, select: false },
   },
   { timestamps: true, collection: "clientes" }
 );

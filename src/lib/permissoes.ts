@@ -11,7 +11,7 @@ import type { Role } from "@/lib/constantes";
 export async function exigirAcesso(roles?: Role[]): Promise<Session | NextResponse> {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session?.user?.id) {
     return NextResponse.json({ erro: "Você precisa estar logado" }, { status: 401 });
   }
   if (roles && !roles.includes(session.user.role)) {

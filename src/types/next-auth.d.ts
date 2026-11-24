@@ -15,5 +15,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: Role;
+    invalido?: boolean; // true quando o usuário foi desativado ou excluído depois do login
   }
 }

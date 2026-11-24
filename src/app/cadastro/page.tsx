@@ -7,7 +7,7 @@ import FormCadastro from "@/components/FormCadastro";
 
 export default async function CadastroPage() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/dashboard");
+  if (session?.user?.id) redirect("/dashboard");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">

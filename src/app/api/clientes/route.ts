@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
+import { gerarCodigoVinculo } from "@/lib/vinculo";
 import { Cliente } from "@/models/Cliente";
 
 // Admin e técnico podem consultar
@@ -9,7 +10,7 @@ export async function GET() {
   if (session instanceof NextResponse) return session;
 
   await dbConnect();
-  const clientes = await Cliente.find().sort({ nome: 1 }).lean();
+  const clientes = await Cliente.find().select("-codigoVinculo").sort({ nome: 1 }).lean(); // o código nunca vai na lista
   return NextResponse.json(clientes);
 }
 
@@ -33,6 +34,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "Já existe um cliente com esse e-mail" }, { status: 409 });
   }
 
-  const cliente = await Cliente.create({ nome, email, telefone, observacoes });
+  const cliente = await Cliente.create({ nome, email, telefone, observacoes, codigoVinculo: gerarCodigoVinculo() });
   return NextResponse.json(cliente, { status: 201 });
 }

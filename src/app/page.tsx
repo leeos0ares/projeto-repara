@@ -18,7 +18,7 @@ const etapas = [
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/dashboard");
+  if (session?.user?.id) redirect("/dashboard");
 
   return (
     <main className="mx-auto grid min-h-screen max-w-5xl items-center gap-12 px-6 py-12 md:grid-cols-2">

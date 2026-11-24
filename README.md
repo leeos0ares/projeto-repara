@@ -39,6 +39,8 @@ cliente, reparar, testar e entregar, com cada etapa registrada.
   cliente: situação dos seus equipamentos)
 - Histórico de reparos por equipamento, em `/equipamentos/[id]`
 - Busca e filtros nas listas
+- Vínculo seguro entre conta de login e cadastro de cliente: quem já foi cadastrado no balcão cria a conta com um
+  código de vínculo de uso único, gerado pelo admin na página do cliente
 
 ### Como o status anda
 
@@ -53,6 +55,17 @@ Cancelar: só o admin, até antes de "Pronto para retirada"
 
 Regras extras: para iniciar o diagnóstico a ordem precisa ter técnico; para enviar ao cliente precisa ter orçamento;
 para marcar como pronto precisa ter o resultado dos testes.
+
+## Segurança
+
+- Senhas guardadas com bcrypt; o hash nunca sai nas respostas da API.
+- Toda rota `/api` confere login e perfil no servidor (`exigirAcesso`), além do middleware e do layout nas páginas.
+- A sessão é revalidada a cada acesso: se o admin desativar, excluir ou rebaixar um usuário, o acesso muda na hora,
+  sem esperar o token expirar (`src/lib/auth.ts`).
+- Cliente só enxerga o que é dele; técnico só abre as ordens atribuídas a ele; notas internas, técnico e prioridade
+  não vão para o cliente.
+- O e-mail sozinho não liga uma conta nova a um cliente já cadastrado: é preciso o código de vínculo
+  (`src/app/api/cadastro/route.ts`, `src/lib/vinculo.ts`).
 
 ## Estrutura das pastas
 
@@ -153,7 +166,7 @@ Link do deploy: _(preencher depois de publicar)_
 1. **Admin:** em Usuários, crie um técnico. Em Clientes, cadastre um cliente. Em Equipamentos, cadastre um notebook para ele.
 2. **Admin:** abra a ordem de serviço pelo equipamento (prioridade alta, técnico escolhido). Mostre o dashboard.
 3. **Técnico:** entre com o técnico, veja a fila no dashboard, inicie o diagnóstico, preencha e envie o orçamento.
-4. **Cliente:** crie a conta com o e-mail do cliente, veja o orçamento e aprove. Mostre que não aparecem notas internas.
+4. **Cliente:** abra a página do cliente como admin e gere o código de vínculo. Em `/cadastro`, crie a conta com o e-mail do cliente e esse código, veja o orçamento e aprove. Mostre que não aparecem notas internas. (Tente criar a conta sem o código para mostrar que é recusada.)
 5. **Técnico:** registre procedimentos e testes, marque como pronto.
 6. **Admin:** registre a entrega e mostre o histórico de reparos na página do equipamento.
 7. Mostre que um técnico não abre `/usuarios` e que um equipamento com ordens não pode ser excluído.
@@ -178,8 +191,10 @@ Link do deploy: _(preencher depois de publicar)_
 
 ## Limitações conhecidas
 
-- Ao criar a conta, o sistema liga o usuário ao cliente que tiver o mesmo e-mail. Não há confirmação de e-mail, então
-  alguém poderia se cadastrar com o e-mail de outro cliente e ver as ordens dele. Para o escopo da faculdade foi aceito.
+- Quem se cadastra com um e-mail que a assistência ainda não conhece vira um cliente novo, sem confirmação de e-mail
+  (não há dados para ver até a assistência abrir ordens para ele).
+- O código de vínculo tem 10 caracteres aleatórios e as tentativas de cadastro não têm limite de frequência. Para o
+  escopo da faculdade foi aceito.
 - Ordens não são apagadas: "excluir" uma ordem é cancelá-la, para o histórico não se perder.
 - Se o cliente recusar um orçamento de serviço adicional (no meio do reparo), a ordem vai para "Recusado" e o admin decide
   entre devolver o equipamento ou cancelar.

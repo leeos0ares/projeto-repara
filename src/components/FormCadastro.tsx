@@ -12,7 +12,7 @@ import Alerta from "@/components/Alerta";
 
 export default function FormCadastro() {
   const router = useRouter();
-  const [form, setForm] = useState({ nome: "", email: "", telefone: "", senha: "" });
+  const [form, setForm] = useState({ nome: "", email: "", telefone: "", codigoVinculo: "", senha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -69,6 +69,18 @@ export default function FormCadastro() {
           <div className="flex flex-col gap-2">
             <Label htmlFor="telefone">Telefone (opcional)</Label>
             <Input id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleChange} />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="codigoVinculo">Código de vínculo (só se a assistência já te cadastrou)</Label>
+            <Input
+              id="codigoVinculo"
+              name="codigoVinculo"
+              autoComplete="off"
+              placeholder="Ex.: A1B2C-3D4E5"
+              value={form.codigoVinculo}
+              onChange={handleChange}
+            />
           </div>
 
           <div className="flex flex-col gap-2">

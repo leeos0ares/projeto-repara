@@ -6,7 +6,7 @@ import Sidebar from "@/components/Sidebar";
 // Layout de todas as páginas privadas (a pasta (painel) não aparece na URL)
 export default async function PainelLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/login"); // segunda proteção, além do middleware
+  if (!session?.user?.id) redirect("/login"); // segunda proteção, além do middleware
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">

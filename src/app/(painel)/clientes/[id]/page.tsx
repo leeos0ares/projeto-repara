@@ -8,6 +8,7 @@ import { TIPO_EQUIPAMENTO_LABEL, type TipoEquipamento } from "@/lib/constantes";
 import { Cliente } from "@/models/Cliente";
 import { Equipamento } from "@/models/Equipamento";
 import Campo from "@/components/Campo";
+import CodigoVinculo from "@/components/CodigoVinculo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Server Component: busca direto no banco, por isso confere a permissão aqui também
@@ -19,7 +20,10 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
   if (!isValidObjectId(id)) notFound();
 
   await dbConnect();
-  const cliente = await Cliente.findById(id).lean();
+  // o código de vínculo só é carregado para o admin
+  const consulta = Cliente.findById(id);
+  if (session.user.role === "admin") consulta.select("+codigoVinculo");
+  const cliente = await consulta.lean();
   if (!cliente) notFound();
 
   const equipamentos = await Equipamento.find({ clienteId: id }).sort({ createdAt: -1 }).lean();
@@ -50,6 +54,17 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
           </dl>
         </CardContent>
       </Card>
+
+      {session.user.role === "admin" && !cliente.usuarioId && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Código de vínculo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CodigoVinculo clienteId={id} codigoInicial={cliente.codigoVinculo ?? null} />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/mongodb";
+import { normalizarCodigo } from "@/lib/vinculo";
 import { Usuario } from "@/models/Usuario";
 import { Cliente } from "@/models/Cliente";
 
@@ -10,6 +11,7 @@ export async function POST(req: Request) {
   const email = String(body.email ?? "").toLowerCase().trim();
   const telefone = String(body.telefone ?? "").trim();
   const senha = String(body.senha ?? "");
+  const codigo = normalizarCodigo(body.codigoVinculo);
 
   if (!nome || !email || !senha) {
     return NextResponse.json({ erro: "Preencha nome, e-mail e senha" }, { status: 400 });
@@ -28,19 +30,31 @@ export async function POST(req: Request) {
     return NextResponse.json({ erro: "Já existe uma conta com esse e-mail" }, { status: 409 });
   }
 
+  // Se a assistência já cadastrou esse e-mail no balcão, a conta só é ligada a esse cadastro
+  // com o código de vínculo que o admin entregou ao cliente. Só o e-mail não basta,
+  // senão qualquer pessoa veria os equipamentos e ordens de outro cliente.
+  const clienteExistente = await Cliente.findOne({ email }).select("+codigoVinculo");
+  if (clienteExistente) {
+    if (clienteExistente.usuarioId) {
+      return NextResponse.json({ erro: "Já existe uma conta para esse cliente" }, { status: 409 });
+    }
+    const codigoCerto = !!clienteExistente.codigoVinculo && normalizarCodigo(clienteExistente.codigoVinculo) === codigo;
+    if (!codigoCerto) {
+      return NextResponse.json(
+        { erro: "Esse e-mail já está cadastrado na assistência. Informe o código de vínculo que a assistência te passou." },
+        { status: 403 }
+      );
+    }
+  }
+
   const senhaHash = await bcrypt.hash(senha, 10);
 
-  // role fixo em "cliente": quem cria técnico ou admin é o administrador (Etapa 2)
+  // role fixo em "cliente": quem cria técnico ou admin é o administrador
   const usuario = await Usuario.create({ nome, email, senhaHash, role: "cliente" });
 
-  // Se a assistência já cadastrou esse e-mail no balcão, liga a conta ao cliente existente.
-  // Se não, cria um cliente novo.
-  const cliente = await Cliente.findOne({ email });
-  if (cliente) {
-    if (!cliente.usuarioId) {
-      cliente.usuarioId = usuario._id;
-      await cliente.save();
-    }
+  if (clienteExistente) {
+    clienteExistente.set({ usuarioId: usuario._id, codigoVinculo: null }); // o código é de uso único
+    await clienteExistente.save();
   } else {
     await Cliente.create({ nome, email, telefone, usuarioId: usuario._id });
   }

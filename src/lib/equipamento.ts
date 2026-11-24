@@ -1,5 +1,5 @@
 import { isValidObjectId } from "mongoose";
-import { TIPOS_EQUIPAMENTO } from "@/lib/constantes";
+import { TIPOS_EQUIPAMENTO, type TipoEquipamento } from "@/lib/constantes";
 
 const texto = (valor: unknown) => String(valor ?? "").trim();
 
@@ -9,7 +9,7 @@ export function lerDadosEquipamento(body: Record<string, unknown>) {
 
   const dados = {
     clienteId: texto(body.clienteId),
-    tipo: texto(body.tipo),
+    tipo: texto(body.tipo) as TipoEquipamento, // conferido logo abaixo; se for inválido, devolve erro
     marca: texto(body.marca),
     modelo: texto(body.modelo),
     numeroSerie: texto(body.numeroSerie),

@@ -41,16 +41,29 @@ export const authOptions: NextAuthOptions = {
   ],
 
   callbacks: {
-    // coloca id e role dentro do token...
-    jwt({ token, user }) {
+    // No login, coloca id e role dentro do token.
+    // Nos acessos seguintes, confere no banco se o usuário continua ativo e com o mesmo perfil:
+    // assim, desativar ou rebaixar alguém vale na hora, e não só quando o token expirar.
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        return token;
+      }
+
+      if (token.id) {
+        await dbConnect();
+        const usuario = await Usuario.findById(token.id).select("role ativo");
+        token.invalido = !usuario || !usuario.ativo;
+        if (usuario) token.role = usuario.role as Role;
       }
       return token;
     },
-    // ...e repassa para a sessão que o front enxerga
+    // Repassa para a sessão que o front enxerga.
+    // Token invalidado: devolver objeto vazio faz o getServerSession retornar null (sem sessão).
     session({ session, token }) {
+      if (token.invalido) return {} as typeof session;
+
       session.user.id = token.id;
       session.user.role = token.role;
       return session;

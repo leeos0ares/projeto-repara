@@ -7,7 +7,7 @@ import FormLogin from "@/components/FormLogin";
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/dashboard");
+  if (session?.user?.id) redirect("/dashboard");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
