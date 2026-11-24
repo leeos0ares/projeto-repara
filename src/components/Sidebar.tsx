@@ -9,6 +9,9 @@ import { ROLE_LABEL, type Role } from "@/lib/constantes";
 // Cada etapa nova do projeto adiciona linhas aqui
 const menu: { href: string; label: string; roles: Role[] }[] = [
   { href: "/dashboard", label: "Dashboard", roles: ["admin", "tecnico", "cliente"] },
+  { href: "/clientes", label: "Clientes", roles: ["admin", "tecnico"] },
+  { href: "/equipamentos", label: "Equipamentos", roles: ["admin", "tecnico", "cliente"] },
+  { href: "/usuarios", label: "Usuários", roles: ["admin"] },
 ];
 
 export default function Sidebar({ nome, role }: { nome: string; role: Role }) {
