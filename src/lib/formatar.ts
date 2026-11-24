@@ -1,11 +1,14 @@
-export function formatarData(iso?: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("pt-BR");
+const FUSO = "America/Sao_Paulo";
+type Data = string | Date | null | undefined;
+
+export function formatarData(valor?: Data) {
+  if (!valor) return "—";
+  return new Date(valor).toLocaleDateString("pt-BR", { timeZone: FUSO });
 }
 
-export function formatarDataHora(iso?: string | null) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+export function formatarDataHora(valor?: Data) {
+  if (!valor) return "—";
+  return new Date(valor).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: FUSO });
 }
 
 export function formatarMoeda(valor?: number | null) {

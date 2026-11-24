@@ -1,13 +1,18 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { STATUS_OS } from "@/lib/constantes";
 import ListaOrdens from "@/components/ListaOrdens";
 
-export default async function OrdensPage() {
+export default async function OrdensPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
   const role = session.user.role;
+
+  // ?status=em_reparo vem dos cartões do dashboard; se for inválido, ignora
+  const { status } = await searchParams;
+  const statusInicial = STATUS_OS.some((s) => s === status) ? (status as string) : "";
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +27,7 @@ export default async function OrdensPage() {
         </p>
       </div>
 
-      <ListaOrdens role={role} />
+      <ListaOrdens role={role} statusInicial={statusInicial} />
     </div>
   );
 }

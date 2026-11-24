@@ -1,31 +1,33 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ROLE_LABEL, type Role } from "@/lib/constantes";
+import DashboardAdmin from "@/components/DashboardAdmin";
+import DashboardCliente from "@/components/DashboardCliente";
+import DashboardTecnico from "@/components/DashboardTecnico";
+import type { Role } from "@/lib/constantes";
 
-const resumo: Record<Role, string> = {
-  admin: "O resumo geral das ordens de serviço e a distribuição entre técnicos entram na Etapa 4.",
-  tecnico: "As ordens atribuídas a você e os equipamentos aguardando diagnóstico entram na Etapa 4.",
-  cliente: "Seus equipamentos, orçamentos e o que está pronto para retirada entram na Etapa 4.",
+const subtitulo: Record<Role, string> = {
+  admin: "Visão geral da assistência.",
+  tecnico: "Seu trabalho de hoje.",
+  cliente: "Acompanhe os equipamentos que você deixou na assistência.",
 };
 
+// Cada perfil vê um painel diferente
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) return null;
 
-  const { name, role } = session.user;
+  const { name, role, id } = session.user;
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Olá, {name?.split(" ")[0]}</h1>
+      <div>
+        <h1 className="text-2xl font-semibold">Olá, {name?.split(" ")[0]}</h1>
+        <p className="text-sm text-muted-foreground">{subtitulo[role]}</p>
+      </div>
 
-      <Card className="max-w-xl">
-        <CardHeader>
-          <CardTitle>Painel do {ROLE_LABEL[role].toLowerCase()}</CardTitle>
-          <CardDescription>Login e sessão funcionando.</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">{resumo[role]}</CardContent>
-      </Card>
+      {role === "admin" && <DashboardAdmin />}
+      {role === "tecnico" && <DashboardTecnico userId={id} />}
+      {role === "cliente" && <DashboardCliente userId={id} />}
     </div>
   );
 }

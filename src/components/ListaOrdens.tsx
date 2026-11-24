@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,7 +15,7 @@ import { formatarData, numeroOS } from "@/lib/formatar";
 import { useUiStore } from "@/store/useUiStore";
 import type { OrdemItem } from "@/types";
 
-export default function ListaOrdens({ role }: { role: Role }) {
+export default function ListaOrdens({ role, statusInicial }: { role: Role; statusInicial: string }) {
   const {
     buscaOrdem,
     setBuscaOrdem,
@@ -25,6 +26,11 @@ export default function ListaOrdens({ role }: { role: Role }) {
     tecnicoOrdem,
     setTecnicoOrdem,
   } = useUiStore();
+
+  // veio de um cartão do dashboard (/ordens?status=em_reparo): aplica o filtro ao abrir a página
+  useEffect(() => {
+    setStatusOrdem(statusInicial);
+  }, [statusInicial, setStatusOrdem]);
 
   const ehEquipe = role !== "cliente"; // cliente não vê prioridade nem cliente (é ele mesmo)
   const ehAdmin = role === "admin"; // técnico só vê as dele, então a coluna de técnico não faz sentido

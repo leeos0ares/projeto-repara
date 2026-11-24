@@ -1,38 +1,44 @@
 # Repara
 
 Sistema web de gestão para uma assistência técnica de computadores, notebooks, videogames, controles e periféricos.
-Clientes, equipamentos, ordens de serviço, orçamentos e histórico de reparos em um lugar só.
+Reúne clientes, equipamentos, ordens de serviço, orçamentos e o histórico de reparos em um lugar só, para a equipe
+saber o que precisa ser feito e o cliente acompanhar o andamento sem depender de mensagens no WhatsApp.
 
-Projeto acadêmico (Next.js Fullstack). **Estado atual: Etapa 3 de 5** (inclui tudo das Etapas 1 e 2).
+Projeto acadêmico (Next.js Fullstack).
+
+## Objetivo
+
+Representar a rotina de uma assistência técnica real: receber o equipamento, diagnosticar, orçar, pedir a aprovação do
+cliente, reparar, testar e entregar, com cada etapa registrada.
 
 ## Tecnologias
 
-Next.js (App Router), TypeScript, MongoDB Atlas + Mongoose, NextAuth.js (JWT), bcryptjs, TanStack React Query,
-Zustand, Tailwind CSS, ShadCN/UI e Vercel.
+- Next.js 15 (App Router) e TypeScript
+- MongoDB Atlas com Mongoose (conexão Singleton)
+- NextAuth.js v4 com sessão em JWT e senhas com bcrypt (`bcryptjs`)
+- TanStack React Query (dados das listas e detalhes) e Zustand (filtros e modais)
+- Tailwind CSS e ShadCN/UI (onde o componente nativo do HTML resolve, usamos o nativo)
+- Deploy na Vercel
 
-## Funcionalidades (até agora)
+## Perfis de usuário
 
-**Etapa 1**
-- Conexão com MongoDB usando Singleton (`src/lib/mongodb.ts`)
-- Cadastro de conta (perfil "cliente") com senha criptografada com bcrypt
-- Login e logout com NextAuth (credenciais + sessão em JWT)
-- Proteção das páginas privadas (middleware + layout do painel)
-- Menu lateral que muda conforme o perfil, `loading.tsx` e `error.tsx`
+| Perfil | O que faz |
+|---|---|
+| Administrador | Gerencia usuários, clientes, equipamentos e ordens; atribui técnicos; muda prioridades; registra entregas e cancelamentos |
+| Técnico | Vê as ordens atribuídas a ele; registra diagnóstico, orçamento, peças, procedimentos e testes; avança o status até "pronto para retirada" |
+| Cliente | Vê só as ordens e equipamentos dele; consulta o diagnóstico e o orçamento; aprova ou recusa o orçamento |
 
-**Etapa 2**
-- CRUD de usuários (só admin), clientes e equipamentos, com páginas de detalhe `/clientes/[id]` e `/equipamentos/[id]`
-- Toda rota `/api` confere login e perfil no servidor (`src/lib/permissoes.ts`)
-- React Query nas listas e Zustand para filtros e modais
+## Principais funcionalidades
 
-**Etapa 3**
-- Ordens de serviço com número sequencial (`#0001`, `#0002`...), criadas pelo admin a partir de um equipamento
-- Lista com busca (nº, cliente, equipamento) e filtros de status, prioridade e técnico
-- Página `/ordens/[id]` com dados, diagnóstico e reparo, orçamento e linha do tempo (histórico de movimentações)
+- Cadastro, login e logout; páginas privadas protegidas e rotas `/api` que conferem o perfil no servidor
+- CRUD de usuários, clientes e equipamentos (campos de especificação só para computador e notebook)
+- Ordens de serviço com número sequencial, prioridade, técnico, prazo e linha do tempo de movimentações
 - Status com regras (`src/lib/status.ts`): cada status só vai para os próximos permitidos, e só para quem tem permissão
-- Orçamento: técnico ou admin cria; o cliente aprova ou recusa; sem aprovação o reparo não começa
-- Prioridade (baixa, normal, alta, urgente) independente do status
-- Cada perfil só enxerga e altera o que lhe cabe (técnico: só ordens atribuídas; cliente: só as dele, sem notas internas)
-- Equipamento com ordens e técnico com ordens não podem ser excluídos
+- Orçamento: criado pela equipe, aprovado ou recusado pelo cliente; sem aprovação o reparo não começa
+- Dashboard diferente para cada perfil (admin: números, status, carga por técnico e alertas; técnico: fila de trabalho;
+  cliente: situação dos seus equipamentos)
+- Histórico de reparos por equipamento, em `/equipamentos/[id]`
+- Busca e filtros nas listas
 
 ### Como o status anda
 
@@ -46,9 +52,26 @@ Cancelar: só o admin, até antes de "Pronto para retirada"
 ```
 
 Regras extras: para iniciar o diagnóstico a ordem precisa ter técnico; para enviar ao cliente precisa ter orçamento;
-para marcar como pronto precisa ter o resultado dos testes preenchido.
+para marcar como pronto precisa ter o resultado dos testes.
 
-## Como instalar (projeto novo)
+## Estrutura das pastas
+
+```
+src/
+  app/            páginas e rotas (api/ tem as rotas do servidor)
+    (painel)/     páginas privadas, com menu lateral (layout aninhado)
+  components/     componentes (ui/ é do ShadCN)
+  hooks/          useAtualizarOrdem
+  lib/            banco, login, permissões, regras de status, formatação, constantes
+  models/         Usuario, Cliente, Equipamento, OrdemServico
+  providers/      SessionProvider + React Query
+  store/          Zustand (filtros e modais)
+  types/          tipagens
+public/           logo
+scripts/          criar-admin.mjs
+```
+
+## Como instalar
 
 ```bash
 npx create-next-app@15 repara --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
@@ -60,13 +83,10 @@ npm install mongoose next-auth@4 bcryptjs @tanstack/react-query zustand
 
 (Se o `create-next-app` fizer alguma pergunta que não estiver nas opções acima, é só apertar Enter.)
 
-Depois copie para dentro da pasta `repara/` as pastas `src/` e `scripts/` e o arquivo `.env.example` deste projeto.
+Depois copie para dentro da pasta `repara/` as pastas `src/`, `public/` e `scripts/` e o arquivo `.env.example`.
 Confirme a substituição de `src/app/layout.tsx` e `src/app/page.tsx`.
 
-### Já está com a Etapa 2 funcionando?
-
-A Etapa 3 **não precisa de nenhum componente novo do ShadCN** (usa `select`, `details`, `input type="date"` nativos).
-É só copiar a pasta `src/` deste zip por cima do projeto.
+**Já está com a Etapa 3 funcionando?** Não precisa instalar nada novo: copie `src/` e `public/` por cima.
 
 ### Cor azul do tema
 
@@ -98,7 +118,9 @@ No `package.json`, dentro de `"scripts"`, adicione:
 3. `NEXTAUTH_SECRET`: gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
 4. `NEXTAUTH_URL`: `http://localhost:3000` no computador; na Vercel, a URL do deploy.
 
-## Como executar
+O arquivo `.env.local` não deve ir para o GitHub (o `.gitignore` do Next já ignora).
+
+## Como executar localmente
 
 ```bash
 npm run criar-admin -- "Seu Nome" admin@repara.com suaSenha   # só na primeira vez
@@ -107,38 +129,52 @@ npm run dev
 
 Abra http://localhost:3000 e entre com o admin criado.
 
-### Roteiro de teste da Etapa 3
+Antes de publicar, rode também:
 
-Prepare: crie um técnico em **Usuários**, um cliente em **Clientes** e um notebook para ele em **Equipamentos**.
-Para testar o lado do cliente, crie uma conta em `/cadastro` com o mesmo e-mail do cliente.
-
-1. Admin: abra o equipamento e clique em **Abrir ordem de serviço**. Preencha o problema, prioridade "Alta" e escolha o técnico.
-2. Na ordem, tente **Iniciar diagnóstico** antes de ter técnico (use uma ordem sem técnico): deve avisar.
-3. Entre como técnico: a ordem aparece na lista dele (e só ela). Clique em **Iniciar diagnóstico**.
-4. Preencha o diagnóstico, salve, e crie o orçamento (serviços, peças, mão de obra). Clique em **Enviar orçamento ao cliente**.
-5. Entre como cliente: em **Ordens de serviço** abra a ordem. Deve ver o diagnóstico e o orçamento, mas não as observações
-   internas, o técnico nem a prioridade. Clique em **Aprovar orçamento**.
-6. Entre como técnico de novo: status "Em reparo". Registre procedimentos, peças e tente **Marcar como pronto** sem
-   resultado dos testes (deve avisar). Envie para testes, preencha o resultado e marque como pronto.
-7. Admin: **Registrar entrega**. A ordem fica encerrada e não aceita mais edição.
-8. Tente excluir o equipamento ou o técnico: deve bloquear porque existem ordens.
-9. Teste a recusa: em outra ordem, o cliente recusa o orçamento. Status vira "Recusado" e o admin pode registrar a devolução.
-
-## Estrutura das pastas
-
+```bash
+npm run lint
+npm run build
 ```
-src/
-  app/            páginas e rotas (api/ tem as rotas do servidor)
-    (painel)/     páginas privadas, com menu lateral
-  components/     componentes (ui/ é do ShadCN)
-  hooks/          useAtualizarOrdem
-  lib/            banco, login, permissões, regras de status, formatação, constantes
-  models/         Usuario, Cliente, Equipamento, OrdemServico
-  providers/      SessionProvider + React Query
-  store/          Zustand (filtros e modais)
-  types/          tipagens
-scripts/          criar-admin.mjs
-```
+
+## Deploy na Vercel
+
+1. Suba o projeto para um repositório no GitHub (sem o `.env.local`).
+2. Na Vercel: **Add New > Project**, escolha o repositório. O Next.js é detectado sozinho.
+3. Em **Environment Variables**, cadastre `MONGODB_URI`, `NEXTAUTH_SECRET` e `NEXTAUTH_URL`
+   (use a URL que a Vercel vai dar ao projeto, por exemplo `https://repara.vercel.app`).
+4. Clique em **Deploy**. Se precisou ajustar o `NEXTAUTH_URL` depois, faça um **Redeploy**.
+5. No Atlas, confira em **Network Access** se `0.0.0.0/0` está liberado.
+6. Para criar o admin no banco do deploy, rode o `criar-admin` no seu computador com o mesmo `MONGODB_URI` no `.env.local`.
+
+Link do deploy: _(preencher depois de publicar)_
+
+## Roteiro de demonstração (uns 5 minutos)
+
+1. **Admin:** em Usuários, crie um técnico. Em Clientes, cadastre um cliente. Em Equipamentos, cadastre um notebook para ele.
+2. **Admin:** abra a ordem de serviço pelo equipamento (prioridade alta, técnico escolhido). Mostre o dashboard.
+3. **Técnico:** entre com o técnico, veja a fila no dashboard, inicie o diagnóstico, preencha e envie o orçamento.
+4. **Cliente:** crie a conta com o e-mail do cliente, veja o orçamento e aprove. Mostre que não aparecem notas internas.
+5. **Técnico:** registre procedimentos e testes, marque como pronto.
+6. **Admin:** registre a entrega e mostre o histórico de reparos na página do equipamento.
+7. Mostre que um técnico não abre `/usuarios` e que um equipamento com ordens não pode ser excluído.
+
+## Onde está cada requisito da avaliação
+
+| Requisito | Onde |
+|---|---|
+| MongoDB Atlas com Singleton | `src/lib/mongodb.ts` |
+| CRUD completo | Usuários, clientes e equipamentos (todos); ordens (criar, ler, editar e cancelar, para o histórico não se perder) |
+| React Query ou cache do Next | React Query nas listas e detalhes; dashboards são Server Components que consultam o banco a cada acesso |
+| NextAuth com JWT, login e logout | `src/lib/auth.ts`, `FormLogin.tsx`, botão Sair em `Sidebar.tsx` |
+| Bcrypt | `src/app/api/cadastro`, `src/app/api/usuarios`, `scripts/criar-admin.mjs` |
+| Proteção no frontend e no backend | `src/middleware.ts`, `(painel)/layout.tsx`, `exigirAcesso` em `src/lib/permissoes.ts` nas rotas `/api` |
+| App Router, layouts aninhados, rotas dinâmicas | `app/layout.tsx` e `(painel)/layout.tsx`; `/clientes/[id]`, `/equipamentos/[id]`, `/ordens/[id]` |
+| TypeScript | todo o projeto (`src/types`) |
+| Zustand | `src/store/useUiStore.ts` |
+| `loading.tsx` e `error.tsx` | `src/app/(painel)/` |
+| Tailwind, ShadCN, responsivo, feedback | componentes em `src/components`, avisos com `Alerta.tsx`, botões com estado de carregamento |
+| `next/image`, `next/link`, Server e Client Components | logo em `Sidebar.tsx`, `page.tsx` e login; páginas são Server Components e só o que tem interação é Client |
+| Variáveis de ambiente e deploy | `.env.example` e a seção de deploy acima |
 
 ## Limitações conhecidas
 
@@ -150,10 +186,3 @@ scripts/          criar-admin.mjs
 - Cliente sem conta no sistema não consegue aprovar sozinho: o admin registra a decisão em nome dele.
 - Fotos do equipamento ficam de fora (exigiria armazenamento de arquivos).
 - A busca das listas é feita no navegador, em cima dos dados já carregados.
-
-## Próximas etapas
-
-4. Dashboards por perfil e histórico de reparos por equipamento
-5. Ajustes finais, README completo e deploy na Vercel
-
-Link do deploy: _ainda não publicado_

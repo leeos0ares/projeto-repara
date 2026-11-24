@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -21,7 +22,8 @@ export default function Sidebar({ nome, role }: { nome: string; role: Role }) {
 
   return (
     <aside className="flex flex-col gap-4 border-b border-border bg-card p-4 md:min-h-screen md:w-60 md:border-b-0 md:border-r">
-      <Link href="/dashboard" className="text-xl font-semibold tracking-tight">
+      <Link href="/dashboard" className="flex items-center gap-2 text-xl font-semibold tracking-tight">
+        <Image src="/logo-repara.svg" alt="" width={28} height={28} />
         Repara
       </Link>
 

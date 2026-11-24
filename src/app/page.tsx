@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
@@ -22,7 +23,10 @@ export default async function HomePage() {
   return (
     <main className="mx-auto grid min-h-screen max-w-5xl items-center gap-12 px-6 py-12 md:grid-cols-2">
       <section className="flex flex-col gap-5">
-        <h1 className="text-5xl font-semibold tracking-tight">Repara</h1>
+        <div className="flex items-center gap-4">
+          <Image src="/logo-repara.svg" alt="" width={56} height={56} priority />
+          <h1 className="text-5xl font-semibold tracking-tight">Repara</h1>
+        </div>
         <p className="max-w-md text-lg text-muted-foreground">
           Deixou o notebook, o videogame ou o controle na assistência? Veja em que etapa está o conserto e aprove o
           orçamento pelo celular.

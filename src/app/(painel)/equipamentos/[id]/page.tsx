@@ -9,7 +9,8 @@ import { Cliente } from "@/models/Cliente";
 import { Equipamento } from "@/models/Equipamento";
 import Campo from "@/components/Campo";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import HistoricoEquipamento from "@/components/HistoricoEquipamento";
 
 export default async function EquipamentoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -73,12 +74,7 @@ export default async function EquipamentoDetalhePage({ params }: { params: Promi
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Histórico de reparos</CardTitle>
-          <CardDescription>Os reparos deste equipamento aparecem aqui na Etapa 4, em ordem cronológica.</CardDescription>
-        </CardHeader>
-      </Card>
+      <HistoricoEquipamento equipamentoId={id} role={session.user.role} userId={session.user.id} />
     </div>
   );
 }
