@@ -1,30 +1,22 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import type { Metadata } from "next";
+import { IBM_Plex_Sans } from "next/font/google";
+import "./globals.css";
+import Providers from "@/providers/Providers";
 
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+const plex = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"] });
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'})
+export const metadata: Metadata = {
+  title: "Repara",
+  description: "Gestão de assistência técnica de eletrônicos",
+};
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
-    >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
+    // className="dark" ativa o tema escuro do ShadCN
+    <html lang="pt-BR" className="dark">
+      <body className={`${plex.className} antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }

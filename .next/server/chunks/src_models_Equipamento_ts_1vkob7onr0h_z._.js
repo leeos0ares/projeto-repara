@@ -1,3 +1,0 @@
-module.exports=[99322,e=>{"use strict";var t=e.i(64328),i=e.i(32167);let r=new t.Schema({clienteId:{type:t.Schema.Types.ObjectId,ref:"Cliente",required:!0},tipo:{type:String,enum:[...i.F],required:!0},marca:{type:String,required:!0,trim:!0},modelo:{type:String,required:!0,trim:!0},numeroSerie:{type:String,trim:!0},descricao:{type:String,trim:!0},especificacoes:{processador:{type:String,trim:!0},memoriaRam:{type:String,trim:!0},placaVideo:{type:String,trim:!0},armazenamento:{type:String,trim:!0}},observacoes:{type:String,trim:!0}},{timestamps:!0,collection:"equipamentos"}),m=t.default.models.Equipamento||t.default.model("Equipamento",r);e.s(["f",0,m])}];
-
-//# sourceMappingURL=src_models_Equipamento_ts_1vkob7onr0h_z._.js.map

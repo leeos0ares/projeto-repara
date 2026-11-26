@@ -1,3 +1,0 @@
-module.exports=[66680,(e,r,t)=>{r.exports=e.x("node:crypto",()=>require("node:crypto"))},62860,e=>{"use strict";var r=e.i(66680);e.s(["u",0,function(){let e=(0,r.randomBytes)(5).toString("hex").toUpperCase();return`${e.slice(0,5)}-${e.slice(5)}`},"X",0,function(e){return String(e??"").toUpperCase().replace(/[^A-Z0-9]/g,"")}])}];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__1z00ayjbve4gb._.js.map

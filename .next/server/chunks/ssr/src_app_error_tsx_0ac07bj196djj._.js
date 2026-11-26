@@ -1,3 +1,0 @@
-module.exports=[23953,a=>{"use strict";var b=a.i(87924);let c=new function({error:a,reset:c}){return(0,b.jsxs)("main",{className:"flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center",children:[(0,b.jsx)("h1",{className:"text-xl font-semibold",children:"Algo deu errado"}),(0,b.jsx)("p",{className:"max-w-md text-sm text-muted-foreground",children:a.message}),(0,b.jsx)(Button,{onClick:c,children:"Tentar de novo"})]})}("Cannot find module '@/components/ui/button'");throw c.code="MODULE_NOT_FOUND",c}];
-
-//# sourceMappingURL=src_app_error_tsx_0ac07bj196djj._.js.map
