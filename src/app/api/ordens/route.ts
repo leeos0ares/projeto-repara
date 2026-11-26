@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { isValidObjectId } from "mongoose";
 import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
@@ -45,7 +46,7 @@ export async function POST(req: Request) {
   const session = await exigirAcesso(["admin"]);
   if (session instanceof NextResponse) return session;
 
-  const body = await req.json();
+  const body = await lerJson(req);
   const equipamentoId = texto(body.equipamentoId);
   const tecnicoId = texto(body.tecnicoId);
   const problemaRelatado = texto(body.problemaRelatado);

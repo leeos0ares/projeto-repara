@@ -37,6 +37,9 @@ export default function FormUsuario({ item, meuId, onSalvo }: Props) {
         : api("/api/usuarios", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["usuarios"] });
+      // o nome do técnico aparece nas ordens
+      queryClient.invalidateQueries({ queryKey: ["ordens"] });
+      queryClient.invalidateQueries({ queryKey: ["ordem"] });
       onSalvo(item ? "Usuário atualizado" : "Usuário criado");
     },
   });

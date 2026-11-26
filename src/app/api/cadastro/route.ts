@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/mongodb";
 import { normalizarCodigo } from "@/lib/vinculo";
@@ -6,7 +7,7 @@ import { Usuario } from "@/models/Usuario";
 import { Cliente } from "@/models/Cliente";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await lerJson(req);
   const nome = String(body.nome ?? "").trim();
   const email = String(body.email ?? "").toLowerCase().trim();
   const telefone = String(body.telefone ?? "").trim();

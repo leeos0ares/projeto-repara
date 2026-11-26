@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { isValidObjectId } from "mongoose";
 import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
@@ -17,7 +18,7 @@ export async function PUT(req: Request, { params }: Ctx) {
     return NextResponse.json({ erro: "ID inválido" }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await lerJson(req);
   const nome = String(body.nome ?? "").trim();
   const email = String(body.email ?? "").toLowerCase().trim();
   const telefone = String(body.telefone ?? "").trim();

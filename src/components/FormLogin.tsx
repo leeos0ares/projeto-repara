@@ -22,17 +22,22 @@ export default function FormLogin() {
     setErro("");
     setLoading(true);
 
-    // redirect: false -> a gente decide o que fazer com o resultado
-    const res = await signIn("credentials", { email, senha, redirect: false });
-    setLoading(false);
+    try {
+      // redirect: false -> a gente decide o que fazer com o resultado
+      const res = await signIn("credentials", { email, senha, redirect: false });
 
-    if (!res || res.error) {
-      setErro("E-mail ou senha incorretos");
-      return;
+      if (!res || res.error) {
+        setErro("E-mail ou senha incorretos");
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh(); // faz os Server Components lerem a sessão nova
+    } catch {
+      setErro("Não foi possível entrar agora. Verifique a conexão e tente de novo.");
+    } finally {
+      setLoading(false);
     }
-
-    router.push("/dashboard");
-    router.refresh(); // faz os Server Components lerem a sessão nova
   }
 
   return (

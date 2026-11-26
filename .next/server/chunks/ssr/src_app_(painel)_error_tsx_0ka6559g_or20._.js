@@ -1,0 +1,3 @@
+module.exports=[95673,a=>{"use strict";var b=a.i(87924);let c=new function({error:a,reset:c}){return(0,b.jsxs)("div",{className:"flex max-w-md flex-col gap-3",children:[(0,b.jsx)("h2",{className:"text-xl font-semibold",children:"Não foi possível carregar esta página"}),(0,b.jsx)("p",{className:"text-sm text-muted-foreground",children:a.message}),(0,b.jsx)("div",{children:(0,b.jsx)(Button,{onClick:c,children:"Tentar de novo"})})]})}("Cannot find module '@/components/ui/button'");throw c.code="MODULE_NOT_FOUND",c}];
+
+//# sourceMappingURL=src_app_%28painel%29_error_tsx_0ka6559g_or20._.js.map

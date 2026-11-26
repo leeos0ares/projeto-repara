@@ -1,0 +1,3 @@
+module.exports=[56171,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function(){return(0,b.jsxs)("div",{className:"flex flex-col gap-4",children:[(0,b.jsx)("div",{className:"h-8 w-48 animate-pulse rounded-md bg-muted"}),(0,b.jsx)("div",{className:"h-32 max-w-xl animate-pulse rounded-md bg-muted"})]})}])},2248,function(a){a.n(a.i(56171))}];
+
+//# sourceMappingURL=src_app_%28painel%29_loading_tsx_1ye6l6jo4iaie._.js.map

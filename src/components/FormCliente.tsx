@@ -31,6 +31,10 @@ export default function FormCliente({ item, onSalvo }: Props) {
         : api("/api/clientes", { method: "POST", body: JSON.stringify(form) }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clientes"] }); // recarrega a lista
+      // o nome do cliente aparece nas listas de equipamentos e de ordens
+      queryClient.invalidateQueries({ queryKey: ["equipamentos"] });
+      queryClient.invalidateQueries({ queryKey: ["ordens"] });
+      queryClient.invalidateQueries({ queryKey: ["ordem"] });
       onSalvo(item ? "Cliente atualizado" : "Cliente cadastrado");
     },
   });

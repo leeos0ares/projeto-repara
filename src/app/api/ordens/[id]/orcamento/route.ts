@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { exigirAcesso } from "@/lib/permissoes";
 import { STATUS_LABEL, type StatusOS } from "@/lib/constantes";
 import { STATUS_ORCAMENTO_EDITAVEL } from "@/lib/status";
@@ -19,7 +20,7 @@ export async function PUT(req: Request, { params }: Ctx) {
     return NextResponse.json({ erro: "Neste status não é possível alterar o orçamento" }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await lerJson(req);
   const servicos = texto(body.servicos);
   const valorPecas = Number(body.valorPecas || 0);
   const valorMaoDeObra = Number(body.valorMaoDeObra || 0);
@@ -55,7 +56,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const ordem = await carregarOrdem(id, session);
   if (ordem instanceof NextResponse) return ordem;
 
-  const { decisao } = await req.json();
+  const { decisao } = await lerJson(req);
   if (decisao !== "aprovado" && decisao !== "recusado") {
     return NextResponse.json({ erro: "Decisão inválida" }, { status: 400 });
   }

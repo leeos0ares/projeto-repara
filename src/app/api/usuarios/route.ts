@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
   const session = await exigirAcesso(["admin"]);
   if (session instanceof NextResponse) return session;
 
-  const body = await req.json();
+  const body = await lerJson(req);
   const nome = String(body.nome ?? "").trim();
   const email = String(body.email ?? "").toLowerCase().trim();
   const senha = String(body.senha ?? "");

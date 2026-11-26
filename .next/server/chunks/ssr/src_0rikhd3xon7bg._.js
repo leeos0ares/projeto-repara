@@ -1,0 +1,3 @@
+module.exports=[21161,a=>{"use strict";var b=a.i(87924);a.s(["f",0,function({tipo:a="erro",children:c}){return(0,b.jsx)("div",{role:"alert",className:`rounded-md border px-3 py-2 text-sm ${"erro"===a?"border-red-500/40 bg-red-500/10 text-red-300":"border-emerald-500/40 bg-emerald-500/10 text-emerald-300"}`,children:c})}])},11096,a=>{"use strict";a.i(87924),a.i(72131),a.i(70025);let b=Error("Cannot find module '@/components/ui/button'");throw b.code="MODULE_NOT_FOUND",b},19032,a=>{"use strict";async function b(a,b){let c=await fetch(a,{headers:{"Content-Type":"application/json"},...b}),d=await c.json().catch(()=>({}));if(!c.ok)throw Error(d.erro??"Não foi possível completar a ação");return d}a.s(["f",0,b])}];
+
+//# sourceMappingURL=src_0rikhd3xon7bg._.js.map

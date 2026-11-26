@@ -1,0 +1,10 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/src/app/(painel)/clientes/page": [
+      "static/media/48eea41d8317494f-s.p.0wiir8udbzjvx.woff2"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}

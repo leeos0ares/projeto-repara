@@ -26,23 +26,28 @@ export default function FormCadastro() {
     setErro("");
     setLoading(true);
 
-    const res = await fetch("/api/cadastro", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch("/api/cadastro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      setErro(data.erro ?? "Não foi possível criar a conta");
+      if (!res.ok) {
+        setErro(data.erro ?? "Não foi possível criar a conta");
+        return;
+      }
+
+      // conta criada: já entra direto
+      await signIn("credentials", { email: form.email, senha: form.senha, redirect: false });
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setErro("Não foi possível criar a conta agora. Verifique a conexão e tente de novo.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // conta criada: já entra direto
-    await signIn("credentials", { email: form.email, senha: form.senha, redirect: false });
-    router.push("/dashboard");
-    router.refresh();
   }
 
   return (

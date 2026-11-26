@@ -68,6 +68,9 @@ export default function FormEquipamento({ item, onSalvo }: Props) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["equipamentos"] });
+      // marca e modelo aparecem nas listas de ordens
+      queryClient.invalidateQueries({ queryKey: ["ordens"] });
+      queryClient.invalidateQueries({ queryKey: ["ordem"] });
       onSalvo(item ? "Equipamento atualizado" : "Equipamento cadastrado");
     },
   });

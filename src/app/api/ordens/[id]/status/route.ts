@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { exigirAcesso } from "@/lib/permissoes";
 import { STATUS_LABEL, STATUS_OS, type StatusOS } from "@/lib/constantes";
 import { motivoBloqueio, proximosStatus } from "@/lib/status";
@@ -15,7 +16,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   const ordem = await carregarOrdem(id, session);
   if (ordem instanceof NextResponse) return ordem;
 
-  const { status: novo } = await req.json();
+  const { status: novo } = await lerJson(req);
   if (!STATUS_OS.includes(novo)) {
     return NextResponse.json({ erro: "Status inválido" }, { status: 400 });
   }

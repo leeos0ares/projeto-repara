@@ -9,6 +9,7 @@ import { Cliente } from "@/models/Cliente";
 import { Equipamento } from "@/models/Equipamento";
 import Campo from "@/components/Campo";
 import CodigoVinculo from "@/components/CodigoVinculo";
+import { formatarData } from "@/lib/formatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Server Component: busca direto no banco, por isso confere a permissão aqui também
@@ -45,8 +46,8 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
           <dl className="grid gap-4 sm:grid-cols-2">
             <Campo label="E-mail" valor={cliente.email} />
             <Campo label="Telefone" valor={cliente.telefone} />
-            {/* a data de cadastro vem do próprio _id do Mongo */}
-            <Campo label="Cadastrado em" valor={cliente._id.getTimestamp().toLocaleDateString("pt-BR")} />
+            {/* a data de cadastro vem do próprio _id do Mongo; formatarData usa o fuso de São Paulo */}
+            <Campo label="Cadastrado em" valor={formatarData(cliente._id.getTimestamp())} />
             <Campo label="Conta no sistema" valor={cliente.usuarioId ? "Sim" : "Não"} />
             <div className="sm:col-span-2">
               <Campo label="Observações" valor={cliente.observacoes} />

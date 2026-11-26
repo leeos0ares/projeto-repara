@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { isValidObjectId } from "mongoose";
 import { exigirAcesso } from "@/lib/permissoes";
 import { PRIORIDADES, type StatusOS } from "@/lib/constantes";
@@ -49,7 +50,7 @@ export async function PUT(req: Request, { params }: Ctx) {
     return NextResponse.json({ erro: "Esta ordem já foi encerrada e não pode mais ser editada" }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await lerJson(req);
   const ehAdmin = session.user.role === "admin";
   const permitidos = ehAdmin ? CAMPOS_ADMIN : CAMPOS_TECNICO;
 

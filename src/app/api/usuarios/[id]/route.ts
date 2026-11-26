@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { isValidObjectId } from "mongoose";
 import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/mongodb";
@@ -18,7 +19,7 @@ export async function PUT(req: Request, { params }: Ctx) {
     return NextResponse.json({ erro: "ID inválido" }, { status: 400 });
   }
 
-  const body = await req.json();
+  const body = await lerJson(req);
   await dbConnect();
 
   const usuario = await Usuario.findById(id);

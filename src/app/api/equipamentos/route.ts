@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { lerJson } from "@/lib/corpo";
 import { dbConnect } from "@/lib/mongodb";
 import { exigirAcesso } from "@/lib/permissoes";
 import { lerDadosEquipamento } from "@/lib/equipamento";
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
   const session = await exigirAcesso(["admin"]);
   if (session instanceof NextResponse) return session;
 
-  const { dados, erro } = lerDadosEquipamento(await req.json());
+  const { dados, erro } = lerDadosEquipamento(await lerJson(req));
   if (erro) {
     return NextResponse.json({ erro }, { status: 400 });
   }

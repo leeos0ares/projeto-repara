@@ -1,0 +1,3 @@
+{
+  "/api/ordens/[id]/orcamento/route": "app/api/ordens/[id]/orcamento/route.js"
+}

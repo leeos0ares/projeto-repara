@@ -1,48 +1,37 @@
 # Repara
 
-Sistema web de gestão para uma assistência técnica de computadores, notebooks, videogames, controles e periféricos.
-Reúne clientes, equipamentos, ordens de serviço, orçamentos e o histórico de reparos em um lugar só, para a equipe
-saber o que precisa ser feito e o cliente acompanhar o andamento sem depender de mensagens no WhatsApp.
+Sistema web de gestão para uma assistência técnica de eletrônicos.
 
-Projeto acadêmico (Next.js Fullstack).
+## 1. Descrição
 
-## Objetivo
+O Repara organiza o dia a dia de uma assistência técnica de computadores, notebooks, videogames, controles e periféricos:
+cadastro de clientes e equipamentos, ordens de serviço com status, orçamento com aprovação do cliente e histórico de
+reparos por equipamento. A equipe vê o que precisa ser feito e o cliente acompanha o andamento sem depender de mensagens.
 
-Representar a rotina de uma assistência técnica real: receber o equipamento, diagnosticar, orçar, pedir a aprovação do
-cliente, reparar, testar e entregar, com cada etapa registrada.
+Projeto acadêmico (Next.js Fullstack), para uma única assistência técnica (não é um marketplace).
 
-## Tecnologias
+## 2. Tecnologias
 
-- Next.js 15 (App Router) e TypeScript
-- MongoDB Atlas com Mongoose (conexão Singleton)
-- NextAuth.js v4 com sessão em JWT e senhas com bcrypt (`bcryptjs`)
-- TanStack React Query (dados das listas e detalhes) e Zustand (filtros e modais)
-- Tailwind CSS e ShadCN/UI (onde o componente nativo do HTML resolve, usamos o nativo)
-- Deploy na Vercel
+- Next.js 16 (App Router, Proxy) e React 19
+- TypeScript
+- MongoDB Atlas com Mongoose 9 (conexão Singleton em `src/lib/mongodb.ts`)
+- NextAuth.js v4 (login por credenciais, sessão em JWT) e bcryptjs
+- TanStack React Query 5 e Zustand 5
+- Tailwind CSS 4 e ShadCN/UI
+- Vercel (hospedagem)
 
-## Perfis de usuário
+## 3. Funcionalidades
 
-| Perfil | O que faz |
-|---|---|
-| Administrador | Gerencia usuários, clientes, equipamentos e ordens; atribui técnicos; muda prioridades; registra entregas e cancelamentos |
-| Técnico | Vê as ordens atribuídas a ele; registra diagnóstico, orçamento, peças, procedimentos e testes; avança o status até "pronto para retirada" |
-| Cliente | Vê só as ordens e equipamentos dele; consulta o diagnóstico e o orçamento; aprova ou recusa o orçamento |
-
-## Principais funcionalidades
-
-- Cadastro, login e logout; páginas privadas protegidas e rotas `/api` que conferem o perfil no servidor
-- CRUD de usuários, clientes e equipamentos (campos de especificação só para computador e notebook)
+- Cadastro, login e logout; páginas privadas protegidas
+- CRUD de usuários, clientes e equipamentos
 - Ordens de serviço com número sequencial, prioridade, técnico, prazo e linha do tempo de movimentações
-- Status com regras (`src/lib/status.ts`): cada status só vai para os próximos permitidos, e só para quem tem permissão
-- Orçamento: criado pela equipe, aprovado ou recusado pelo cliente; sem aprovação o reparo não começa
-- Dashboard diferente para cada perfil (admin: números, status, carga por técnico e alertas; técnico: fila de trabalho;
-  cliente: situação dos seus equipamentos)
-- Histórico de reparos por equipamento, em `/equipamentos/[id]`
+- Status com regras (`src/lib/status.ts`): cada status só avança para os próximos permitidos, e só para quem pode
+- Orçamento criado pela equipe e aprovado ou recusado pelo cliente; sem aprovação o reparo não começa
+- Dashboard diferente para cada perfil
+- Histórico de reparos por equipamento
 - Busca e filtros nas listas
-- Vínculo seguro entre conta de login e cadastro de cliente: quem já foi cadastrado no balcão cria a conta com um
-  código de vínculo de uso único, gerado pelo admin na página do cliente
 
-### Como o status anda
+Fluxo de status:
 
 ```
 Recebido -> Em diagnóstico -> Aguardando aprovação -> (cliente aprova) -> Em reparo
@@ -53,21 +42,26 @@ Em reparo -> Aguardando aprovação (serviço adicional: novo orçamento)
 Cancelar: só o admin, até antes de "Pronto para retirada"
 ```
 
-Regras extras: para iniciar o diagnóstico a ordem precisa ter técnico; para enviar ao cliente precisa ter orçamento;
-para marcar como pronto precisa ter o resultado dos testes.
+## 4. Perfis e permissões
 
-## Segurança
+| Perfil | O que pode fazer |
+|---|---|
+| Administrador | Gerencia usuários, clientes, equipamentos e ordens; atribui técnicos; muda prioridades; registra entregas e cancelamentos; gera o código de vínculo dos clientes |
+| Técnico | Vê só as ordens atribuídas a ele; registra diagnóstico, orçamento, peças, procedimentos e testes; avança o status até "pronto para retirada"; consulta clientes e equipamentos sem editar |
+| Cliente | Vê só as ordens e os equipamentos dele; consulta diagnóstico e orçamento; aprova ou recusa o orçamento |
 
-- Senhas guardadas com bcrypt; o hash nunca sai nas respostas da API.
-- Toda rota `/api` confere login e perfil no servidor (`exigirAcesso`), além do middleware e do layout nas páginas.
-- A sessão é revalidada a cada acesso: se o admin desativar, excluir ou rebaixar um usuário, o acesso muda na hora,
-  sem esperar o token expirar (`src/lib/auth.ts`).
-- Cliente só enxerga o que é dele; técnico só abre as ordens atribuídas a ele; notas internas, técnico e prioridade
-  não vão para o cliente.
-- O e-mail sozinho não liga uma conta nova a um cliente já cadastrado: é preciso o código de vínculo
-  (`src/app/api/cadastro/route.ts`, `src/lib/vinculo.ts`).
+Segurança:
 
-## Estrutura das pastas
+- Senhas com bcrypt; o hash nunca sai nas respostas da API.
+- O cadastro público sempre cria o perfil "cliente". Técnicos e administradores só são criados pelo admin.
+- Três camadas de proteção: `src/proxy.ts` (páginas), layout do painel e `exigirAcesso` em cada rota `/api`
+  (`src/lib/permissoes.ts`).
+- A sessão é revalidada no banco a cada acesso (`src/lib/auth.ts`): desativar, excluir ou rebaixar um usuário vale na hora.
+- O cliente não recebe observações internas, técnico nem prioridade.
+- O e-mail sozinho não liga uma conta nova a um cliente já cadastrado no balcão: é preciso o código de vínculo,
+  de uso único, gerado pelo admin na página do cliente.
+
+## 5. Estrutura de diretórios
 
 ```
 src/
@@ -80,30 +74,60 @@ src/
   providers/      SessionProvider + React Query
   store/          Zustand (filtros e modais)
   types/          tipagens
+  proxy.ts        proteção das páginas (antigo middleware.ts)
 public/           logo
 scripts/          criar-admin.mjs
 ```
 
-## Como instalar
+## 6. Pré-requisitos
+
+- Node.js **20.9 ou mais novo** (exigência do Next.js 16; o `--env-file` do script de admin pede 20.6+). Confira com `node -v`.
+- npm e Git
+- Conta no MongoDB Atlas (plano gratuito M0)
+- Conta no GitHub e na Vercel (plano Hobby) para publicar
+
+## 7. Instalação local
 
 ```bash
-npx create-next-app@15 repara --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
-cd repara
-npx shadcn@latest init -d
-npx shadcn@latest add button input label card table dialog textarea badge
-npm install mongoose next-auth@4 bcryptjs @tanstack/react-query zustand
+git clone https://github.com/leeos0ares/projeto-repara.git
+cd projeto-repara
+npm install
 ```
 
-(Se o `create-next-app` fizer alguma pergunta que não estiver nas opções acima, é só apertar Enter.)
+### Arquivos da raiz que o projeto espera
 
-Depois copie para dentro da pasta `repara/` as pastas `src/`, `public/` e `scripts/` e o arquivo `.env.example`.
-Confirme a substituição de `src/app/layout.tsx` e `src/app/page.tsx`.
+O `package.json` precisa destes scripts:
 
-**Já está com a Etapa 3 funcionando?** Não precisa instalar nada novo: copie `src/` e `public/` por cima.
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint",
+  "criar-admin": "node --env-file=.env.local scripts/criar-admin.mjs"
+},
+"engines": {
+  "node": ">=20.9.0"
+}
+```
 
-### Cor azul do tema
+O `tsconfig.json` precisa apontar o alias `@/` para a pasta `src`:
 
-No final de `src/app/globals.css`, adicione:
+```json
+"paths": {
+  "@/*": ["./src/*"]
+}
+```
+
+Os componentes do ShadCN ficam em `src/components/ui`. Se faltar algum:
+
+```bash
+npx shadcn@latest add button input label card table dialog textarea badge
+```
+
+A CLI da Vercel (`vercel`) não precisa estar nas dependências: a publicação é feita pelo GitHub.
+
+Cor azul do tema: no fim de `src/app/globals.css` deve existir
 
 ```css
 .dark {
@@ -113,91 +137,125 @@ No final de `src/app/globals.css`, adicione:
 }
 ```
 
-### Script para criar o admin
+## 8. Configuração do .env.local
 
-No `package.json`, dentro de `"scripts"`, adicione:
-
-```json
-"criar-admin": "node --env-file=.env.local scripts/criar-admin.mjs"
-```
-
-(precisa do Node 20.6 ou mais novo)
-
-## Como configurar o .env
-
-1. Copie `.env.example` para `.env.local`.
-2. `MONGODB_URI`: no MongoDB Atlas, crie um cluster, um usuário de banco e libere o acesso de rede
-   (para a Vercel funcionar, libere `0.0.0.0/0`). Copie a string de conexão e coloque `/repara` no final.
-3. `NEXTAUTH_SECRET`: gere com `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`.
-4. `NEXTAUTH_URL`: `http://localhost:3000` no computador; na Vercel, a URL do deploy.
-
-O arquivo `.env.local` não deve ir para o GitHub (o `.gitignore` do Next já ignora).
-
-## Como executar localmente
+Copie o modelo (no Windows: `copy .env.example .env.local`):
 
 ```bash
-npm run criar-admin -- "Seu Nome" admin@repara.com suaSenha   # só na primeira vez
+cp .env.example .env.local
+```
+
+| Variável | Valor |
+|---|---|
+| `MONGODB_URI` | String de conexão do Atlas, com o nome do banco no final (passo 9) |
+| `NEXTAUTH_SECRET` | Texto aleatório. Gere com o comando abaixo |
+| `NEXTAUTH_URL` | `http://localhost:3000` no computador; na Vercel, a URL do site |
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+O `.env.local` nunca vai para o GitHub (o `.gitignore` do Next já ignora `.env*`). O `.env.example` precisa ir:
+se ele estiver sendo ignorado, acrescente `!.env.example` ao `.gitignore`.
+
+## 9. Configuração do MongoDB Atlas
+
+1. Crie um cluster gratuito (M0).
+2. Em **Database Access**, crie um usuário e uma senha (use só letras e números; símbolos quebram a URL).
+3. Em **Network Access**, libere `0.0.0.0/0` (necessário para a Vercel).
+4. Em **Connect > Drivers**, copie a string, troque `<password>` pela senha e coloque `/repara` antes do `?`:
+
+```
+mongodb+srv://USUARIO:SENHA@cluster0.xxxxx.mongodb.net/repara?retryWrites=true&w=majority
+```
+
+As coleções são criadas sozinhas no primeiro uso.
+
+## 10. Criação do primeiro administrador
+
+```bash
+npm run criar-admin -- "Seu Nome" admin@exemplo.com suaSenha
+```
+
+A senha precisa ter pelo menos 6 caracteres. O comando grava direto no banco do `MONGODB_URI`; se o site na Vercel usar o
+mesmo `MONGODB_URI`, o admin já funciona lá. Os técnicos são criados depois, pelo admin, na tela **Usuários**.
+
+## 11. Execução em desenvolvimento
+
+```bash
 npm run dev
 ```
 
-Abra http://localhost:3000 e entre com o admin criado.
+Abra http://localhost:3000 e entre com o administrador. Depois de mudar o `.env.local`, pare (Ctrl+C) e rode de novo.
 
-Antes de publicar, rode também:
+## 12. Compilação de produção
 
 ```bash
 npm run lint
 npm run build
+npm run start
 ```
 
-## Deploy na Vercel
+O `npm run build` precisa passar antes de publicar: se falha no computador, falha na Vercel.
 
-1. Suba o projeto para um repositório no GitHub (sem o `.env.local`).
-2. Na Vercel: **Add New > Project**, escolha o repositório. O Next.js é detectado sozinho.
-3. Em **Environment Variables**, cadastre `MONGODB_URI`, `NEXTAUTH_SECRET` e `NEXTAUTH_URL`
-   (use a URL que a Vercel vai dar ao projeto, por exemplo `https://repara.vercel.app`).
-4. Clique em **Deploy**. Se precisou ajustar o `NEXTAUTH_URL` depois, faça um **Redeploy**.
-5. No Atlas, confira em **Network Access** se `0.0.0.0/0` está liberado.
-6. Para criar o admin no banco do deploy, rode o `criar-admin` no seu computador com o mesmo `MONGODB_URI` no `.env.local`.
+## 13. Implantação na Vercel
 
-Link do deploy: _(preencher depois de publicar)_
+1. Suba o projeto para o GitHub (sem o `.env.local`): `git add .`, `git commit`, `git push`.
+2. Em vercel.com, entre com o GitHub e clique em **Add New > Project**. Importe o repositório.
+3. A Vercel detecta o Next.js sozinha; não mude os comandos de build.
+4. Cadastre as variáveis de ambiente (seção 14) **antes** de clicar em **Deploy**.
+5. Depois do deploy, confira se o endereço final é o mesmo do `NEXTAUTH_URL`. Se não for, corrija e faça **Redeploy**.
+6. Entre no site com o administrador e teste os três perfis.
 
-## Roteiro de demonstração (uns 5 minutos)
+Cada `git push` na branch `main` publica uma nova versão automaticamente.
+
+## 14. Variáveis de ambiente na Vercel
+
+Em **Project > Settings > Environment Variables** (ou na tela de importação):
+
+| Nome | Valor |
+|---|---|
+| `MONGODB_URI` | A mesma string do Atlas |
+| `NEXTAUTH_SECRET` | O segredo gerado no passo 8 |
+| `NEXTAUTH_URL` | `https://NOME-DO-PROJETO.vercel.app` (o endereço real do site) |
+
+Toda vez que mudar uma variável, faça **Redeploy** para ela valer.
+
+## 15. Solução de problemas
+
+| Sintoma | Causa e solução |
+|---|---|
+| `Missing script: "dev"` ou `"build"` | Faltam os scripts no `package.json` (seção 7) |
+| `Module not found: Can't resolve '@/...'` | O alias `@/*` do `tsconfig.json` não aponta para `./src/*`, ou os arquivos de `src/components/ui` não existem (seção 7) |
+| Aviso `"middleware" file convention is deprecated` | Ainda existe `src/middleware.ts`. Apague-o: a proteção agora está em `src/proxy.ts` |
+| `node: .env.local: not found` | Crie o `.env.local` na raiz do projeto e rode o comando de lá |
+| `bad option: --env-file` | Node antigo: instale o Node 20.9 ou mais novo |
+| Timeout ao conectar ou `MongooseServerSelectionError` | `0.0.0.0/0` não liberado no Atlas, senha com símbolo ou `MONGODB_URI` errada |
+| `NO_SECRET` ou o login falha | `NEXTAUTH_SECRET` não definido |
+| Login volta para a tela de login na Vercel | `NEXTAUTH_URL` diferente do endereço real; corrija e faça Redeploy |
+| Erro 500 no site publicado | Variável ausente na Vercel ou IP bloqueado no Atlas; veja os logs em **Deployments > Runtime Logs** |
+| Build falha só na Vercel | Confira se `package.json` e `package-lock.json` estão no GitHub e se o Node é compatível |
+| Cadastro recusado com "código de vínculo" | O e-mail já pertence a um cliente cadastrado no balcão; peça o código ao admin |
+| Um usuário desativado ainda aparece logado | A sessão é revalidada no acesso seguinte; recarregue a página |
+
+## Apêndice: roteiro de demonstração
 
 1. **Admin:** em Usuários, crie um técnico. Em Clientes, cadastre um cliente. Em Equipamentos, cadastre um notebook para ele.
-2. **Admin:** abra a ordem de serviço pelo equipamento (prioridade alta, técnico escolhido). Mostre o dashboard.
-3. **Técnico:** entre com o técnico, veja a fila no dashboard, inicie o diagnóstico, preencha e envie o orçamento.
-4. **Cliente:** abra a página do cliente como admin e gere o código de vínculo. Em `/cadastro`, crie a conta com o e-mail do cliente e esse código, veja o orçamento e aprove. Mostre que não aparecem notas internas. (Tente criar a conta sem o código para mostrar que é recusada.)
-5. **Técnico:** registre procedimentos e testes, marque como pronto.
+2. **Admin:** abra a ordem de serviço pelo equipamento (prioridade alta, técnico escolhido) e mostre o dashboard.
+3. **Técnico:** veja a fila no dashboard, inicie o diagnóstico, preencha e envie o orçamento.
+4. **Cliente:** como admin, gere o código de vínculo na página do cliente. Em `/cadastro`, crie a conta com o e-mail do
+   cliente e o código. Aprove o orçamento e mostre que as notas internas não aparecem. Tente criar a conta sem o código
+   para mostrar que é recusada.
+5. **Técnico:** registre procedimentos e testes e marque como pronto.
 6. **Admin:** registre a entrega e mostre o histórico de reparos na página do equipamento.
 7. Mostre que um técnico não abre `/usuarios` e que um equipamento com ordens não pode ser excluído.
-
-## Onde está cada requisito da avaliação
-
-| Requisito | Onde |
-|---|---|
-| MongoDB Atlas com Singleton | `src/lib/mongodb.ts` |
-| CRUD completo | Usuários, clientes e equipamentos (todos); ordens (criar, ler, editar e cancelar, para o histórico não se perder) |
-| React Query ou cache do Next | React Query nas listas e detalhes; dashboards são Server Components que consultam o banco a cada acesso |
-| NextAuth com JWT, login e logout | `src/lib/auth.ts`, `FormLogin.tsx`, botão Sair em `Sidebar.tsx` |
-| Bcrypt | `src/app/api/cadastro`, `src/app/api/usuarios`, `scripts/criar-admin.mjs` |
-| Proteção no frontend e no backend | `src/middleware.ts`, `(painel)/layout.tsx`, `exigirAcesso` em `src/lib/permissoes.ts` nas rotas `/api` |
-| App Router, layouts aninhados, rotas dinâmicas | `app/layout.tsx` e `(painel)/layout.tsx`; `/clientes/[id]`, `/equipamentos/[id]`, `/ordens/[id]` |
-| TypeScript | todo o projeto (`src/types`) |
-| Zustand | `src/store/useUiStore.ts` |
-| `loading.tsx` e `error.tsx` | `src/app/(painel)/` |
-| Tailwind, ShadCN, responsivo, feedback | componentes em `src/components`, avisos com `Alerta.tsx`, botões com estado de carregamento |
-| `next/image`, `next/link`, Server e Client Components | logo em `Sidebar.tsx`, `page.tsx` e login; páginas são Server Components e só o que tem interação é Client |
-| Variáveis de ambiente e deploy | `.env.example` e a seção de deploy acima |
 
 ## Limitações conhecidas
 
 - Quem se cadastra com um e-mail que a assistência ainda não conhece vira um cliente novo, sem confirmação de e-mail
   (não há dados para ver até a assistência abrir ordens para ele).
-- O código de vínculo tem 10 caracteres aleatórios e as tentativas de cadastro não têm limite de frequência. Para o
-  escopo da faculdade foi aceito.
+- O código de vínculo tem 10 caracteres aleatórios e não há limite de tentativas de cadastro.
 - Ordens não são apagadas: "excluir" uma ordem é cancelá-la, para o histórico não se perder.
-- Se o cliente recusar um orçamento de serviço adicional (no meio do reparo), a ordem vai para "Recusado" e o admin decide
-  entre devolver o equipamento ou cancelar.
-- Cliente sem conta no sistema não consegue aprovar sozinho: o admin registra a decisão em nome dele.
-- Fotos do equipamento ficam de fora (exigiria armazenamento de arquivos).
+- Cliente sem conta não consegue aprovar o orçamento sozinho: o admin registra a decisão em nome dele.
+- Fotos do equipamento ficam de fora.
 - A busca das listas é feita no navegador, em cima dos dados já carregados.
